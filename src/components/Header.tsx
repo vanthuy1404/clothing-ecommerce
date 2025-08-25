@@ -1,4 +1,3 @@
-"use client"
 import { Button, Dropdown, Avatar, type MenuProps } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
@@ -7,6 +6,7 @@ import axios from "axios";
 const Header: React.FC = () => {
   const userString = localStorage.getItem("user");
   const user = userString ? JSON.parse(userString) : null;
+  const admin = localStorage.getItem("is_admin") === "true"; // check admin
   const [cartCount, setCartCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,32 +20,31 @@ const Header: React.FC = () => {
     } catch {
       setCartCount(0);
     }
-  }, []); // Bỏ setCartCount khỏi dependency vì nó stable
+  }, []);
 
-  // Khi user thay đổi (login/logout) → fetch cart
   useEffect(() => {
-    if (user) {
+    if (user && !admin) {
       fetchCartCount(user.id);
     } else {
       setCartCount(0);
     }
-  }, [user, fetchCartCount]);
+  }, [user, admin, fetchCartCount]);
 
   // Logout
   const logout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     localStorage.removeItem("authToken");
-    setCartCount(0); // Reset cart count khi logout
+    localStorage.removeItem("is_admin");
+    setCartCount(0);
     navigate("/");
+    window.location.reload(); // reload để cập nhật header
   };
 
-  // Handle cart click - điều hướng đến trang cart
   const handleCartClick = () => {
     if (user) {
-      navigate("/cart"); // Thay đổi route theo ứng dụng của bạn
+      navigate("/cart");
     } else {
-      // Có thể hiển thị thông báo hoặc điều hướng đến login
       navigate("/login");
     }
   };
@@ -54,6 +53,10 @@ const Header: React.FC = () => {
     { key: "/account", label: "Tài khoản" },
     { key: "/orders", label: "Đơn hàng" },
     { type: "divider" },
+    { key: "logout", label: "Đăng xuất" },
+  ];
+
+  const adminMenuItems: MenuProps["items"] = [
     { key: "logout", label: "Đăng xuất" },
   ];
 
@@ -71,47 +74,83 @@ const Header: React.FC = () => {
         <div className="logo" onClick={() => navigate("/")}>
           Fashion Store
         </div>
-        
-        <nav className="nav-menu">
-          <div 
-            className={`nav-item ${currentPath === "/" ? "active" : ""}`} 
-            onClick={() => navigate("/")}
-          >
-            Trang chủ
-          </div>
-          <div 
-            className={`nav-item ${currentPath === "/products" ? "active" : ""}`} 
-            onClick={() => navigate("/products")}
-          >
-            Sản phẩm
-          </div>
-        </nav>
+
+        {/* Nếu là admin thì hiện Dashboard, Sản phẩm, Đơn hàng */}
+        {admin ? (
+          <nav className="nav-menu">
+            <div
+              className={`nav-item ${currentPath === "/admin" ? "active" : ""}`}
+              onClick={() => navigate("/admin")}
+            >
+              Dashboard
+            </div>
+            <div
+              className={`nav-item ${
+                currentPath === "/admin/products-management" ? "active" : ""
+              }`}
+              onClick={() => navigate("/admin/products-management")}
+            >
+              Sản phẩm
+            </div>
+            <div
+              className={`nav-item ${
+                currentPath === "/admin/orders-management" ? "active" : ""
+              }`}
+              onClick={() => navigate("/admin/orders-management")}
+            >
+              Đơn hàng
+            </div>
+          </nav>
+        ) : (
+          // Nếu không phải admin thì giữ menu cũ
+          <nav className="nav-menu">
+            <div
+              className={`nav-item ${currentPath === "/" ? "active" : ""}`}
+              onClick={() => navigate("/")}
+            >
+              Trang chủ
+            </div>
+            <div
+              className={`nav-item ${
+                currentPath === "/products-management" ? "active" : ""
+              }`}
+              onClick={() => navigate("/products-management")}
+            >
+              Sản phẩm
+            </div>
+          </nav>
+        )}
 
         <div className="user-actions">
-          <div 
-            className="cart-icon" 
-            onClick={handleCartClick}
-            style={{ cursor: "pointer" }}
-          >
-            🛒
-            {cartCount > 0 && (
-              <span className="cart-badge">{cartCount}</span>
-            )}
-          </div>
+          {!admin && (
+            <div
+              className="cart-icon"
+              onClick={handleCartClick}
+              style={{ cursor: "pointer" }}
+            >
+              🛒
+              {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+            </div>
+          )}
 
-          {user ? (
-            <Dropdown 
-              menu={{ items: userMenuItems, onClick: handleUserMenuClick }} 
+          {(user || admin) ? (
+            <Dropdown
+              menu={{
+                items: admin ? adminMenuItems : userMenuItems,
+                onClick: handleUserMenuClick,
+              }}
               placement="bottomRight"
             >
-              <div style={{ 
-                cursor: "pointer", 
-                display: "flex", 
-                alignItems: "center", 
-                gap: "8px" 
-              }}>
+              <div
+                style={{
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
                 <Avatar size="small">👤</Avatar>
-                <span>{user.name}</span>
+                <span>{admin ? "Admin" : user?.name}</span>
               </div>
             </Dropdown>
           ) : (
@@ -119,7 +158,11 @@ const Header: React.FC = () => {
               <Button size="small" onClick={() => navigate("/login")}>
                 Đăng nhập
               </Button>
-              <Button type="primary" size="small" onClick={() => navigate("/register")}>
+              <Button
+                type="primary"
+                size="small"
+                onClick={() => navigate("/register")}
+              >
                 Đăng ký
               </Button>
             </div>

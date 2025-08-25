@@ -1,4 +1,4 @@
-"use client";
+;
 
 import type React from "react";
 import { useState, useEffect } from "react";
@@ -9,7 +9,7 @@ import axios from "axios";
 
 const ProductsPage: React.FC = () => {
   const userString = localStorage.getItem("user");
-  const user = userString? JSON.parse(userString): null
+  const user = userString ? JSON.parse(userString) : null;
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,14 +20,15 @@ const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<any[]>([]);
   const navigate = useNavigate();
 
-  const categories = ["all", ...Array.from(new Set(products.map((p) => p.category)))];
+  const categories = [
+    "all",
+    ...Array.from(new Set(products.map((p) => p.category))),
+  ];
 
-  // Helper function để parse JSON strings
   const parseJsonField = (jsonString: string): string[] => {
     try {
       return JSON.parse(jsonString);
-    } catch (error) {
-      console.error("Error parsing JSON:", error);
+    } catch {
       return [];
     }
   };
@@ -35,13 +36,12 @@ const ProductsPage: React.FC = () => {
   const fetchAllProduct = async () => {
     try {
       const response = await axios.get("https://localhost:7209/api/Product");
-      // Process products to parse JSON fields
       const processedProducts = response.data.map((product: any) => ({
         ...product,
         sizes: parseJsonField(product.sizes),
-        colors: parseJsonField(product.colors)
+        colors: parseJsonField(product.colors),
       }));
-      
+
       setProducts(processedProducts);
       setFilteredProducts(processedProducts);
     } catch (error) {
@@ -79,7 +79,6 @@ const ProductsPage: React.FC = () => {
       return;
     }
 
-    // Check if product has sizes and colors
     if (!product.sizes || product.sizes.length === 0) {
       message.error("Sản phẩm không có thông tin kích thước");
       return;
@@ -102,7 +101,7 @@ const ProductsPage: React.FC = () => {
         await axios.post("https://localhost:7209/api/Cart", {
           user_id: user.id,
           product_id: selectedProduct.id,
-          quantity: 1, // mặc định thêm 1, có thể cho chọn số lượng sau
+          quantity: 1,
           size: selectedSize,
           color: selectedColor,
         });
@@ -130,7 +129,11 @@ const ProductsPage: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             allowClear
           />
-          <Select style={{ width: 200 }} value={selectedCategory} onChange={setSelectedCategory}>
+          <Select
+            style={{ width: 200 }}
+            value={selectedCategory}
+            onChange={setSelectedCategory}
+          >
             <Select.Option value="all">Tất cả danh mục</Select.Option>
             {categories
               .filter((c) => c !== "all")
@@ -151,24 +154,20 @@ const ProductsPage: React.FC = () => {
         <div className="product-grid">
           {filteredProducts.map((product) => (
             <div key={product.id} className="product-card">
-              <img
-                src={product.image || "/placeholder.svg"}
-                alt={product.name}
-                className="product-image"
-              />
+              <div className="image-wrapper">
+                <img
+                  src={product.image || "/placeholder.svg"}
+                  alt={product.name}
+                  className="product-image"
+                />
+              </div>
               <div className="product-info">
                 <div className="product-name">{product.name}</div>
                 <div className="product-price">
                   {product.price.toLocaleString("vi-VN")}đ
                 </div>
                 <div className="product-description">{product.description}</div>
-                <div
-                  style={{
-                    marginBottom: "12px",
-                    fontSize: "14px",
-                    color: "#666",
-                  }}
-                >
+                <div className="product-stock">
                   Còn lại: {product.stock} sản phẩm
                 </div>
                 <Button
@@ -220,13 +219,7 @@ const ProductsPage: React.FC = () => {
 
             <div style={{ marginBottom: "16px" }}>
               <strong>Giá: </strong>
-              <span
-                style={{
-                  color: "#ff4d4f",
-                  fontSize: "18px",
-                  fontWeight: "bold",
-                }}
-              >
+              <span className="modal-price">
                 {selectedProduct.price.toLocaleString("vi-VN")}đ
               </span>
             </div>
@@ -241,11 +234,12 @@ const ProductsPage: React.FC = () => {
                 onChange={(e) => setSelectedSize(e.target.value)}
               >
                 <Space>
-                  {selectedProduct.sizes && selectedProduct.sizes.map((size) => (
-                    <Radio.Button key={size} value={size}>
-                      {size}
-                    </Radio.Button>
-                  ))}
+                  {selectedProduct.sizes &&
+                    selectedProduct.sizes.map((size) => (
+                      <Radio.Button key={size} value={size}>
+                        {size}
+                      </Radio.Button>
+                    ))}
                 </Space>
               </Radio.Group>
             </div>
@@ -260,17 +254,88 @@ const ProductsPage: React.FC = () => {
                 onChange={(e) => setSelectedColor(e.target.value)}
               >
                 <Space>
-                  {selectedProduct.colors && selectedProduct.colors.map((color) => (
-                    <Radio.Button key={color} value={color}>
-                      {color}
-                    </Radio.Button>
-                  ))}
+                  {selectedProduct.colors &&
+                    selectedProduct.colors.map((color) => (
+                      <Radio.Button key={color} value={color}>
+                        {color}
+                      </Radio.Button>
+                    ))}
                 </Space>
               </Radio.Group>
             </div>
           </div>
         )}
       </Modal>
+
+      {/* CSS */}
+      <style>{`
+        .product-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+          gap: 20px;
+        }
+        .product-card {
+          display: flex;
+          flex-direction: column;
+          background: #fff;
+          border: 1px solid #f0f0f0;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          transition: transform 0.2s;
+        }
+        .product-card:hover {
+          transform: translateY(-4px);
+        }
+        .image-wrapper {
+          width: 100%;
+          height: 200px;
+          overflow: hidden;
+        }
+        .product-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        .product-info {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          padding: 12px;
+        }
+        .product-name {
+          font-size: 16px;
+          font-weight: 600;
+          margin-bottom: 6px;
+        }
+        .product-price {
+          font-size: 15px;
+          color: #ff4d4f;
+          font-weight: bold;
+          margin-bottom: 8px;
+        }
+        .product-description {
+          font-size: 13px;
+          color: #666;
+          flex-grow: 1;
+          margin-bottom: 8px;
+        }
+        .product-stock {
+          font-size: 13px;
+          color: #888;
+          margin-bottom: 12px;
+        }
+        .empty-state {
+          text-align: center;
+          margin-top: 50px;
+          color: #888;
+        }
+        .modal-price {
+          color: #ff4d4f;
+          font-size: 18px;
+          font-weight: bold;
+        }
+      `}</style>
     </div>
   );
 };

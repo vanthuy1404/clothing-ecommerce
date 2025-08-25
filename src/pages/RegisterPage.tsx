@@ -1,4 +1,4 @@
-"use client";
+;
 
 import type React from "react";
 import { Form, Input, Button, Card, message } from "antd";

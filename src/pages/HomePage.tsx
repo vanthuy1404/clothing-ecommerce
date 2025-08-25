@@ -1,4 +1,4 @@
-"use client";
+;
 
 import type React from "react";
 import { Button } from "antd";
@@ -102,31 +102,83 @@ const HomePage: React.FC = () => {
         >
           Sản phẩm nổi bật
         </h2>
-        <div className="product-grid">
-          {featuredProducts.map((product) => (
-            <div key={product.id} className="product-card">
-              <img
-                src={product.image || "/placeholder.svg"}
-                alt={product.name}
-                className="product-image"
-              />
-              <div className="product-info">
-                <div className="product-name">{product.name}</div>
-                <div className="product-price">
-                  {product.price.toLocaleString("vi-VN")}đ
-                </div>
-                <div className="product-description">{product.description}</div>
-                <Button
-                  type="primary"
-                  block
-                  onClick={() => navigate(`/products`)}
-                >
-                  Xem chi tiết
-                </Button>
-              </div>
-            </div>
-          ))}
+        <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: "24px",
+  }}
+>
+  {featuredProducts.map((product) => (
+    <div
+      key={product.id}
+      style={{
+        border: "1px solid #f0f0f0",
+        borderRadius: "12px",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        background: "#fff",
+        transition: "transform 0.2s, box-shadow 0.2s",
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLDivElement).style.transform = "translateY(-5px)";
+        (e.currentTarget as HTMLDivElement).style.boxShadow =
+          "0 6px 20px rgba(0,0,0,0.1)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
+        (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+      }}
+    >
+      {/* Image wrapper */}
+      <div
+        style={{
+          width: "100%",
+          height: "220px", // cố định chiều cao
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#fafafa",
+        }}
+      >
+        <img
+          src={product.image || "/placeholder.svg"}
+          alt={product.name}
+          style={{
+            maxWidth: "100%",
+            maxHeight: "100%",
+            objectFit: "cover",
+          }}
+        />
+      </div>
+
+      {/* Info */}
+      <div
+        style={{
+          padding: "16px",
+          display: "flex",
+          flexDirection: "column",
+          flexGrow: 1,
+          gap: "8px",
+        }}
+      >
+        <div style={{ fontSize: "16px", fontWeight: 600 }}>{product.name}</div>
+        <div style={{ fontSize: "15px", fontWeight: "bold", color:" #ff4d4f" }}>
+          {product.price.toLocaleString("vi-VN")}đ
         </div>
+        <div style={{ flexGrow: 1, fontSize: "14px", color: "#666" }}>
+          {product.description}
+        </div>
+        <Button type="primary" block onClick={() => navigate(`/products`)}>
+          Xem chi tiết
+        </Button>
+      </div>
+    </div>
+  ))}
+</div>
+
       </div>
     </div>
   );

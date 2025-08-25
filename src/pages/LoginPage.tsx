@@ -1,4 +1,4 @@
-"use client";
+;
 
 import type React from "react";
 import { Form, Input, Button, Card, message } from "antd";
@@ -65,6 +65,11 @@ const LoginPage: React.FC = () => {
             Chưa có tài khoản?{" "}
             <Button type="link" onClick={() => navigate("/register")}>
               Đăng ký ngay
+            </Button>
+          </div>
+          <div style={{ textAlign: "center", marginTop: 8 }}>
+            <Button type="link" onClick={() => navigate("/login/admin")}>
+              Đăng nhập với vai trò quản trị viên
             </Button>
           </div>
         </Form>

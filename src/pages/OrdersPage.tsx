@@ -1,10 +1,11 @@
-"use client";
+;
 
 import React, { useEffect, useState } from "react";
 import { Button, Tag, Spin, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import dayjs from "dayjs";
+import { get } from "http";
 
 interface ProductDTO {
   id: string;
@@ -52,6 +53,52 @@ const OrdersPage: React.FC = () => {
       setLoading(false);
     }
   };
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case "Chờ xác nhận":
+        return {
+          background: "#fffbe6",
+          color: "#ad8b00",
+          border: "1px solid #ffe58f",
+        };
+      case "Đã xác nhận":
+        return {
+          background: "#e6f7ff",
+          color: "#096dd9",
+          border: "1px solid #91d5ff",
+        };
+      case "Đang chuẩn bị":
+        return {
+          background: "#e6fffb",
+          color: "#08979c",
+          border: "1px solid #87e8de",
+        };
+      case "Đang giao":
+        return {
+          background: "#f9f0ff",
+          color: "#722ed1",
+          border: "1px solid #d3adf7",
+        };
+      case "Đã giao":
+        return {
+          background: "#f6ffed",
+          color: "#389e0d",
+          border: "1px solid #b7eb8f",
+        };
+      case "Đã hủy":
+        return {
+          background: "#fff1f0",
+          color: "#cf1322",
+          border: "1px solid #ffa39e",
+        };
+      default:
+        return {
+          background: "#fafafa",
+          color: "#595959",
+          border: "1px solid #d9d9d9",
+        };
+    }
+  };
 
   useEffect(() => {
     fetchOrders();
@@ -76,7 +123,10 @@ const OrdersPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="main-content" style={{ textAlign: "center", padding: 50 }}>
+      <div
+        className="main-content"
+        style={{ textAlign: "center", padding: 50 }}
+      >
         <Spin size="large" />
       </div>
     );
@@ -129,7 +179,9 @@ const OrdersPage: React.FC = () => {
               </p>
             </div>
             <div style={{ textAlign: "right" }}>
-              <Tag color="orange" style={{ marginBottom: "8px" }}>
+              <Tag
+                style={{ ...getStatusStyle(order.status), marginBottom: "8px" }}
+              >
                 {order.status}
               </Tag>
               <div
@@ -168,12 +220,15 @@ const OrdersPage: React.FC = () => {
                   <div>
                     <div style={{ fontWeight: 500 }}>{item.product.name}</div>
                     <div style={{ fontSize: "14px", color: "#666" }}>
-                      {item.size} | {item.color} | SL: {item.quantity} | Giá:{' '}
+                      {item.size} | {item.color} | SL: {item.quantity} | Giá:{" "}
                       {item.product.price.toLocaleString("vi-VN")}đ
                     </div>
                   </div>
                   <div style={{ fontWeight: "bold" }}>
-                    {(item.product.price * item.quantity).toLocaleString("vi-VN")}đ
+                    {(item.product.price * item.quantity).toLocaleString(
+                      "vi-VN"
+                    )}
+                    đ
                   </div>
                 </div>
               ))}
