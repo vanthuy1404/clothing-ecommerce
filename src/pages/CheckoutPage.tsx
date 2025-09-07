@@ -1,10 +1,8 @@
-;
-
+import { Button, Card, Form, Input, message, Modal, Select } from "antd";
+import axios from "axios";
 import type React from "react";
 import { useEffect, useState } from "react";
-import { Form, Input, Button, Card, Modal, message } from "antd";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 interface CartItem {
   id: string;
@@ -18,10 +16,19 @@ interface CartItem {
   color: string;
 }
 
+interface Coupon {
+  id: string;
+  ma_coupon: string;
+  phan_tram: number;
+  noi_dung: string;
+}
+
 const CheckoutPage: React.FC = () => {
   const [form] = Form.useForm();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
   const navigate = useNavigate();
 
   const userString = localStorage.getItem("user");
@@ -40,8 +47,18 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
+  const fetchCoupons = async () => {
+    try {
+      const res = await axios.get("https://localhost:7209/api/Coupon/valid");
+      setCoupons(res.data);
+    } catch (err) {
+      console.error("Error fetching coupons:", err);
+    }
+  };
+
   useEffect(() => {
     fetchCart();
+    fetchCoupons();
   }, []);
 
   if (!user || cart.length === 0) {
@@ -66,14 +83,18 @@ const CheckoutPage: React.FC = () => {
     0
   );
 
-  const onFinish = async (values: { address: string; phone: string; note?: string }) => {
+  const discountedTotal = selectedCoupon
+    ? total - (total * selectedCoupon.phan_tram) / 100
+    : total;
+
+  const onFinish = async (values: { address: string; phone: string; note?: string; coupon?: string }) => {
     try {
-      // gọi API tạo order
       await axios.post("https://localhost:7209/api/Order", {
         user_id: user.id,
         address: values.address,
         phone: values.phone,
         note: values.note,
+        coupon_id: selectedCoupon ? selectedCoupon.id : null,
         items: cart.map((item) => ({
           product_id: item.product_id,
           quantity: item.quantity,
@@ -82,15 +103,13 @@ const CheckoutPage: React.FC = () => {
         })),
       });
 
-      // clear giỏ hàng
       await Promise.all(
         cart.map((item) => axios.delete(`https://localhost:7209/api/Cart/${item.id}`))
       );
 
       Modal.success({
         title: "Đặt hàng thành công!",
-        content:
-          "Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ liên hệ với bạn sớm nhất.",
+        content: "Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ liên hệ với bạn sớm nhất.",
         onOk: () => navigate("/orders"),
       });
     } catch (err) {
@@ -104,6 +123,7 @@ const CheckoutPage: React.FC = () => {
       <h1 style={{ marginBottom: "24px" }}>Thanh toán</h1>
 
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }}>
+        {/* Cột trái: Thông tin giao hàng */}
         <Card title="Thông tin giao hàng">
           <Form
             form={form}
@@ -116,35 +136,16 @@ const CheckoutPage: React.FC = () => {
               address: user.address || "",
             }}
           >
-            <Form.Item
-              name="name"
-              label="Họ và tên"
-              rules={[{ required: true, message: "Vui lòng nhập họ và tên!" }]}
-              
-            >
-              <Input size="large" disabled ={true} />
+            <Form.Item name="name" label="Họ và tên">
+              <Input size="large" disabled />
             </Form.Item>
 
-            <Form.Item
-              name="phone"
-              label="Số điện thoại"
-              rules={[
-                { required: true, message: "Vui lòng nhập số điện thoại!" },
-                { pattern: /^[0-9]{10,11}$/, message: "Số điện thoại không hợp lệ!" },
-              ]}
-            >
-              <Input size="large" disabled ={true}/>
+            <Form.Item name="phone" label="Số điện thoại">
+              <Input size="large" disabled />
             </Form.Item>
 
-            <Form.Item
-              name="email"
-              label="Email"
-              rules={[
-                { required: true, message: "Vui lòng nhập email!" },
-                { type: "email", message: "Email không hợp lệ!" },
-              ]}
-            >
-              <Input size="large" disabled ={true}/>
+            <Form.Item name="email" label="Email">
+              <Input size="large" disabled />
             </Form.Item>
 
             <Form.Item
@@ -152,7 +153,35 @@ const CheckoutPage: React.FC = () => {
               label="Địa chỉ giao hàng"
               rules={[{ required: true, message: "Vui lòng nhập địa chỉ!" }]}
             >
-              <Input.TextArea rows={3} disabled ={true}/>
+              <Input.TextArea rows={3} disabled />
+            </Form.Item>
+
+            {/* Ô nhập / chọn coupon */}
+            <Form.Item name="coupon" label="Mã giảm giá">
+              <Select
+                allowClear
+                showSearch
+                placeholder="Nhập hoặc chọn mã giảm giá"
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  (option?.children as string).toLowerCase().includes(input.toLowerCase())
+                }
+                onChange={(value) => {
+                  if (!value) {
+                    setSelectedCoupon(null);
+                  } else {
+                    const found = coupons.find((c) => c.id === value);
+                    setSelectedCoupon(found || null);
+                  }
+                }}
+              >
+                {coupons.map((c) => (
+                  <Select.Option key={c.id} value={c.id}>
+                    <span style={{ color: "green", fontWeight: 600 }}>{c.ma_coupon}</span> -{" "}
+                    <span style={{ color: "purple" }}>{c.phan_tram}%</span> | {c.noi_dung}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
 
             <Form.Item name="note" label="Ghi chú (không bắt buộc)">
@@ -164,10 +193,13 @@ const CheckoutPage: React.FC = () => {
                 Đặt hàng
               </Button>
             </Form.Item>
-            <div style={{marginLeft:20}}><i>Để thay đổi thông tin đặt hàng, vui lòng thay đổi ở trang Tài khoản của bạn</i></div>
+            <div style={{ marginLeft: 20 }}>
+              <i>Để thay đổi thông tin đặt hàng, vui lòng thay đổi ở trang Tài khoản của bạn</i>
+            </div>
           </Form>
         </Card>
 
+        {/* Cột phải: Tóm tắt đơn hàng */}
         <div className="order-summary">
           <h3 style={{ marginBottom: "16px" }}>Đơn hàng của bạn</h3>
 
@@ -199,10 +231,19 @@ const CheckoutPage: React.FC = () => {
             <span>Miễn phí</span>
           </div>
 
+          {selectedCoupon && (
+            <div className="summary-row" style={{ color: "purple" }}>
+              <span>Mã giảm giá:</span>
+              <span>
+                {selectedCoupon.ma_coupon} (-{selectedCoupon.phan_tram}%)
+              </span>
+            </div>
+          )}
+
           <div className="summary-total">
             <span>Tổng cộng:</span>
             <span style={{ color: "#ff4d4f" }}>
-              {total.toLocaleString("vi-VN")}đ
+              {discountedTotal.toLocaleString("vi-VN")}đ
             </span>
           </div>
         </div>

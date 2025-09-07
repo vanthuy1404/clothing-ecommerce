@@ -1,11 +1,8 @@
-;
-
-import React, { useEffect, useState } from "react";
-import { Button, Tag, Spin, message } from "antd";
-import { useNavigate } from "react-router-dom";
+import { Button, Spin, Tag, message } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
-import { get } from "http";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface ProductDTO {
   id: string;
@@ -28,6 +25,8 @@ interface OrderDTO {
   address: string;
   phone: string;
   date: string;
+  maCoupon: string;
+  phanTram: number;
   items: OrderItemDTO[];
 }
 
@@ -53,6 +52,7 @@ const OrdersPage: React.FC = () => {
       setLoading(false);
     }
   };
+
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "Chờ xác nhận":
@@ -194,6 +194,24 @@ const OrdersPage: React.FC = () => {
                 {order.total.toLocaleString("vi-VN")}đ
               </div>
             </div>
+          </div>
+
+          {/* Thêm Coupon */}
+          <div style={{ marginBottom: "16px" }}>
+            <strong>Mã giảm giá:</strong>{" "}
+            {order.phanTram === 0 ? (
+              <span style={{ color: "#999" }}>Không áp dụng</span>
+            ) : (
+              <>
+                <span style={{ color: "green", fontWeight: "bold" }}>
+                  {order.maCoupon}
+                </span>{" "}
+                -{" "}
+                <span style={{ color: "purple", fontWeight: "bold" }}>
+                  {order.phanTram}%
+                </span>
+              </>
+            )}
           </div>
 
           <div style={{ marginBottom: "16px" }}>

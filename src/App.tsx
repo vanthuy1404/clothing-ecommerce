@@ -1,28 +1,29 @@
 "use client";
 
-import type React from "react";
-import { useState, useEffect } from "react";
 import { ConfigProvider } from "antd";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AppProvider } from "./context/AppContext";
-import Header from "./components/Header";
+import type React from "react";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import AdminHeader from "./components/AdminHeader";
+import Header from "./components/Header";
+import { AppProvider } from "./context/AppContext";
 
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import ProductsPage from "./pages/ProductsPage";
-import CartPage from "./pages/CartPage";
-import CheckoutPage from "./pages/CheckoutPage";
-import OrdersPage from "./pages/OrdersPage";
 import AccountPage from "./pages/AccountPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminLoginPage from "./pages/admin/AdminLogin";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminProducts from "./pages/admin/AdminProducts";
-import AdminLoginPage from "./pages/admin/AdminLogin";
+import CartPage from "./pages/CartPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import OrdersPage from "./pages/OrdersPage";
+import ProductsPage from "./pages/ProductsPage";
+import RegisterPage from "./pages/RegisterPage";
 
 import "./App.css";
 import { useApp } from "./AppContext";
+import AdminCoupons from "./pages/admin/AdminCoupons";
+import AdminUsers from "./pages/admin/AdminUsers";
 
 const App: React.FC = () => {
   const { isAdmin } = useApp();
@@ -52,7 +53,10 @@ const App: React.FC = () => {
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/orders-management" element={<AdminOrders />} />
                 <Route path="/admin/products-management" element={<AdminProducts />} />
+                <Route path="/admin/users-management" element={<AdminUsers />} />
+                <Route path="/admin/coupons-management" element={<AdminCoupons />} />
                 <Route path="/login/admin" element={<AdminLoginPage />} />
+
               </Routes>
             </main>
 

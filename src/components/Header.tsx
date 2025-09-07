@@ -1,13 +1,16 @@
-import { Button, Dropdown, Avatar, type MenuProps } from "antd";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect, useCallback } from "react";
+import { Avatar, Badge, Button, Dropdown, type MenuProps } from "antd";
 import axios from "axios";
+import dayjs from "dayjs";
+import { useCallback, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Header: React.FC = () => {
   const userString = localStorage.getItem("user");
   const user = userString ? JSON.parse(userString) : null;
   const admin = localStorage.getItem("is_admin") === "true"; // check admin
   const [cartCount, setCartCount] = useState(0);
+    const [coupons, setCoupons] = useState<any[]>([]);
+
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -21,6 +24,15 @@ const Header: React.FC = () => {
       setCartCount(0);
     }
   }, []);
+  // Fetch valid coupons
+  const fetchValidCoupons = useCallback(async () => {
+    try {
+      const res = await axios.get("https://localhost:7209/api/Coupon/valid");
+      setCoupons(res.data);
+    } catch {
+      setCoupons([]);
+    }
+  }, []);
 
   useEffect(() => {
     if (user && !admin) {
@@ -28,7 +40,10 @@ const Header: React.FC = () => {
     } else {
       setCartCount(0);
     }
-  }, [user, admin, fetchCartCount]);
+  }, [user, admin]);
+  useEffect(() => {
+    fetchValidCoupons();
+  }, [fetchValidCoupons]);
 
   // Logout
   const logout = () => {
@@ -67,6 +82,76 @@ const Header: React.FC = () => {
       navigate(key);
     }
   };
+  // Menu coupon
+  const couponMenu: MenuProps["items"] = coupons.map((c) => ({
+  key: c.id,
+  label: (
+    <div
+      style={{
+        maxWidth: 280,
+        padding: "10px",
+        borderBottom: "1px solid #f0f0f0",
+      }}
+    >
+      {/* Header: Mã coupon + phần trăm giảm */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: "4px",
+          alignItems: "center",
+        }}
+      >
+        <span
+          style={{
+            fontWeight: "bold",
+            color: "green", // xanh lá cây
+            fontSize: "14px",
+          }}
+        >
+          🎟️ {c.ma_coupon}
+        </span>
+        <span
+          style={{
+            backgroundColor: "#f9f0ff",
+            color: "#722ed1", // tím
+            fontWeight: "bold",
+            fontSize: "13px",
+            padding: "2px 6px",
+            borderRadius: "6px",
+          }}
+        >
+          -{c.phan_tram}%
+        </span>
+      </div>
+
+      {/* Nội dung */}
+      <div
+        style={{
+          fontSize: "13px",
+          color: "#555",
+          marginBottom: "6px",
+        }}
+      >
+        {c.noi_dung}
+      </div>
+
+      {/* Ngày hiệu lực */}
+      <small
+        style={{
+          display: "block",
+          fontSize: "12px",
+          color: "#999",
+        }}
+      >
+        Hiệu lực:{" từ "}
+        {dayjs(c.ngay_bat_dau).format("DD/MM/YYYY")} đến {dayjs(c.ngay_ket_thuc).format("DD/MM/YYYY")}
+
+      </small>
+    </div>
+  ),
+}));
+
 
   return (
     <header className="header">
@@ -100,6 +185,22 @@ const Header: React.FC = () => {
             >
               Đơn hàng
             </div>
+            <div
+              className={`nav-item ${
+                currentPath === "/admin/users-management" ? "active" : ""
+              }`}
+              onClick={() => navigate("/admin/users-management")}
+            >
+              Người dùng            
+            </div>
+            <div
+              className={`nav-item ${
+                currentPath === "/admin/coupons-management" ? "active" : ""
+              }`}
+              onClick={() => navigate("/admin/coupons-management")}
+            >
+              Mã giảm giá            
+            </div>
           </nav>
         ) : (
           // Nếu không phải admin thì giữ menu cũ
@@ -112,9 +213,9 @@ const Header: React.FC = () => {
             </div>
             <div
               className={`nav-item ${
-                currentPath === "/products-management" ? "active" : ""
+                currentPath === "/products" ? "active" : ""
               }`}
-              onClick={() => navigate("/products-management")}
+              onClick={() => navigate("/products")}
             >
               Sản phẩm
             </div>
@@ -123,14 +224,31 @@ const Header: React.FC = () => {
 
         <div className="user-actions">
           {!admin && (
-            <div
-              className="cart-icon"
-              onClick={handleCartClick}
-              style={{ cursor: "pointer" }}
-            >
-              🛒
-              {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-            </div>
+            <>
+              {/* Cart */}
+              <div
+                className="cart-icon"
+                onClick={handleCartClick}
+                style={{ cursor: "pointer" }}
+              >
+                🛒
+                {cartCount > 0 && (
+                  <span className="cart-badge">{cartCount}</span>
+                )}
+              </div>
+
+              {/* Notifications */}
+              <Dropdown
+                menu={{ items: couponMenu }}
+                placement="bottomRight"
+                trigger={["click"]}
+              >
+                <Badge count={coupons.length} offset={[0, 6]}>
+                  <div style={{ cursor: "pointer", fontSize: "18px", marginRight: "10px" }}>🔔</div>
+                </Badge>
+              </Dropdown>
+            </>
+            
           )}
 
           {(user || admin) ? (
