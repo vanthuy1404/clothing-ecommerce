@@ -1,11 +1,11 @@
 ;
 
-import type React from "react";
-import { useState, useEffect } from "react";
-import { Button, Select, Input, Modal, Radio, message, Space } from "antd";
-import type { Product } from "../types";
-import { useNavigate } from "react-router-dom";
+import { Button, Input, message, Modal, Radio, Select, Space } from "antd";
 import axios from "axios";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import type { Product } from "../types";
 
 const ProductsPage: React.FC = () => {
   const userString = localStorage.getItem("user");

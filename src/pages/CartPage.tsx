@@ -1,10 +1,10 @@
 ;
 
-import type React from "react";
-import { useState, useEffect } from "react";
 import { Button, InputNumber, message, Spin } from "antd";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface CartItem {
   id: string;
@@ -175,10 +175,10 @@ const CartPage: React.FC = () => {
             <span>{total.toLocaleString("vi-VN")}đ</span>
           </div>
 
-          <div className="summary-row">
+          {/* <div className="summary-row">
             <span>Phí vận chuyển:</span>
             <span>Miễn phí</span>
-          </div>
+          </div> */}
 
           <div className="summary-total">
             <span>Tổng cộng:</span>

@@ -1,13 +1,13 @@
 
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { Table, Button, Modal, Descriptions, message, Dropdown, Select, Tag } from "antd"
+import { DownOutlined, EyeOutlined, FilePdfOutlined } from "@ant-design/icons"
 import type { MenuProps } from "antd"
-import { EyeOutlined, DownOutlined } from "@ant-design/icons"
+import { Button, Descriptions, Dropdown, message, Modal, Space, Table } from "antd"
 import axios from "axios"
-import type { Order } from "../../types"
+import type React from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import type { Order } from "../../types"
 
 const AdminOrders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([])
@@ -19,7 +19,6 @@ const AdminOrders: React.FC = () => {
     loadOrders()
   }, [])
   const navigate = useNavigate()
-
   const loadOrders = async () => {
     setLoading(true)
     try {
@@ -56,11 +55,41 @@ const AdminOrders: React.FC = () => {
       message.error("Không thể cập nhật trạng thái")
     }
   }
+  const handleExportInvoice = async (orderId: string, record: any) => {
+  try {
+    const response = await axios.post(
+      `https://localhost:7209/api/ExportExcel/order/${orderId}`,
+      record, // payload chính là OrderDTO
+      {
+        responseType: "blob", //  bắt buộc để nhận file binary
+      }
+    );
+
+    // Tạo link download
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `HoaDon_${orderId}.xlsx`); // tên file tải về
+    document.body.appendChild(link);
+    link.click();
+
+    message.success("Xuất hóa đơn thành công!");
+  } catch (error: any) {
+    console.error("Export error:", error);
+    message.error(
+      `Không thể xuất hóa đơn. ${
+        error?.response?.data?.message || "Vui lòng thử lại."
+      }`
+    );
+  }
+};
+
 
   const handleViewDetail = (order: Order) => {
     setSelectedOrder(order)
     setDetailModalVisible(true)
   }
+  
 
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -76,6 +105,8 @@ const AdminOrders: React.FC = () => {
         return { background: "#f6ffed", color: "#389e0d", border: "1px solid #b7eb8f" }
       case "Đã hủy":
         return { background: "#fff1f0", color: "#cf1322", border: "1px solid #ffa39e" }
+      case "Đã thanh toán":
+        return { background: "#f4ffed", color: "#237804", border: "1px solid #b7eb8f" }
       default:
         return { background: "#fafafa", color: "#666", border: "1px solid #d9d9d9" }
     }
@@ -88,6 +119,8 @@ const AdminOrders: React.FC = () => {
     "Đang giao",
     "Đã giao",
     "Đã hủy",
+    "Yêu cầu hủy",
+    "Đã thanh toán",
   ]
 
   const columns = [
@@ -157,20 +190,31 @@ const AdminOrders: React.FC = () => {
       },
     },
     {
-      title: "Thao tác",
-      key: "actions",
-      width: 100,
-      render: (_: any, record: Order) => (
-        <Button
-          type="primary"
-          size="small"
-          icon={<EyeOutlined />}
-          onClick={() => handleViewDetail(record)}
-        >
-          Chi tiết
-        </Button>
-      ),
-    },
+  title: "Thao tác",
+  key: "actions",
+  width: 220,
+  render: (_: any, record: Order) => (
+    <Space>
+      <Button
+        type="primary"
+        size="small"
+        icon={<EyeOutlined />}
+        onClick={() => handleViewDetail(record)}
+      >
+        Chi tiết
+      </Button>
+      <Button
+        type="primary"
+        style={{ backgroundColor: "green", borderColor: "green" }}
+        size="small"
+        icon={<FilePdfOutlined />}
+        onClick={() => handleExportInvoice(record.id, record)}
+      >
+        Xuất HĐ
+      </Button>
+    </Space>
+  ),
+}
   ]
 
   return (

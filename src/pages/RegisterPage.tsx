@@ -1,9 +1,44 @@
-;
-
-import type React from "react";
-import { Form, Input, Button, Card, message } from "antd";
-import { useNavigate } from "react-router-dom";
+import { Button, Card, Form, Input, message } from "antd";
 import axios from "axios";
+import type React from "react";
+import { useNavigate } from "react-router-dom";
+
+const provinces = [
+  "Hà Nội",
+  "Huế",
+  "Quảng Ninh",
+  "Cao Bằng",
+  "Lạng Sơn",
+  "Lai Châu",
+  "Điện Biên",
+  "Sơn La",
+  "Thanh Hóa",
+  "Nghệ An",
+  "Hà Tĩnh",
+  "Tuyên Quang",
+  "Lào Cai",
+  "Thái Nguyên",
+  "Phú Thọ",
+  "Bắc Ninh",
+  "Hưng Yên",
+  "Hải Phòng",
+  "Ninh Bình",
+  "Quảng Trị",
+  "Đà Nẵng",
+  "Quảng Ngãi",
+  "Gia Lai",
+  "Khánh Hòa",
+  "Lâm Đồng",
+  "Đắk Lắk",
+  "Thành phố Hồ Chí Minh",
+  "Đồng Nai",
+  "Tây Ninh",
+  "Cần Thơ",
+  "Vĩnh Long",
+  "Đồng Tháp",
+  "Cà Mau",
+  "An Giang"
+];
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -18,7 +53,7 @@ const RegisterPage: React.FC = () => {
   }) => {
     try {
       const response = await axios.post(
-        "https://localhost:7209/api/User/register", // đổi URL nếu API của bạn khác
+        "https://localhost:7209/api/User/register",
         values,
         {
           headers: {
@@ -97,8 +132,33 @@ const RegisterPage: React.FC = () => {
             <Input placeholder="Nhập số điện thoại" size="large" />
           </Form.Item>
 
-          <Form.Item name="address" label="Địa chỉ">
-            <Input placeholder="Nhập địa chỉ" size="large" />
+          <Form.Item
+            name="address"
+            label="Địa chỉ"
+            rules={[
+              { required: true, message: "Vui lòng nhập địa chỉ!" },
+              {
+                validator: (_, value) => {
+                  if (!value) return Promise.resolve();
+
+                  const found = provinces.some((province) =>
+                    value.toLowerCase().includes(province.toLowerCase())
+                  );
+
+                  if (!found) {
+                    return Promise.reject(
+                      new Error("Địa chỉ chưa có tỉnh/thành phố hợp lệ!")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <Input
+              placeholder="Nhập địa chỉ (bao gồm tỉnh/thành phố)"
+              size="large"
+            />
           </Form.Item>
 
           <Form.Item>

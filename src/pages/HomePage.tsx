@@ -1,11 +1,11 @@
 ;
 
-import type React from "react";
 import { Button } from "antd";
-import { categories } from "../data";
-import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
 import axios from "axios";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { categories } from "../data";
 
 const HomePage: React.FC = () => {
   const [products, setProducts] = useState<any[]>([]);

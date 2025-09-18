@@ -9,12 +9,23 @@ body {
   background-color: #f5f5f5;
   line-height: 1.6;
 }
-
 .app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* toàn màn hình */
+}
+
+.main-content {
+  flex: 1; /* chiếm toàn bộ khoảng trống còn lại */
+  min-height: calc(100vh - 70px); /* tùy chỉnh, trừ header+footer */
+}
+
+
+/* .app-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
+} */
 
 /* Header Styles */
 .header {

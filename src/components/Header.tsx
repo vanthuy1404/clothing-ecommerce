@@ -1,257 +1,482 @@
-import { Avatar, Badge, Button, Dropdown, type MenuProps } from "antd";
-import axios from "axios";
-import dayjs from "dayjs";
-import { useCallback, useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+"use client"
+
+import type React from "react"
+
+import { Avatar, Badge, Dropdown, type MenuProps } from "antd"
+import axios from "axios"
+import dayjs from "dayjs"
+import { useCallback, useEffect, useState } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
 
 const Header: React.FC = () => {
-  const userString = localStorage.getItem("user");
-  const user = userString ? JSON.parse(userString) : null;
-  const admin = localStorage.getItem("is_admin") === "true"; // check admin
-  const [cartCount, setCartCount] = useState(0);
-    const [coupons, setCoupons] = useState<any[]>([]);
+  const userString = localStorage.getItem("user")
+  const user = userString ? JSON.parse(userString) : null
+  const admin = localStorage.getItem("is_admin") === "true" // check admin
+  const [cartCount, setCartCount] = useState(0)
+  const [coupons, setCoupons] = useState<any[]>([])
 
-  const navigate = useNavigate();
-  const location = useLocation();
-  const currentPath = location.pathname;
+  const navigate = useNavigate()
+  const location = useLocation()
+  const currentPath = location.pathname
 
   // Fetch cart count
   const fetchCartCount = useCallback(async (userId: string) => {
     try {
-      const res = await axios.get(`https://localhost:7209/api/Cart/${userId}`);
-      setCartCount(res.data.length);
+      const res = await axios.get(`https://localhost:7209/api/Cart/${userId}`)
+      setCartCount(res.data.length)
     } catch {
-      setCartCount(0);
+      setCartCount(0)
     }
-  }, []);
+  }, [])
   // Fetch valid coupons
   const fetchValidCoupons = useCallback(async () => {
     try {
-      const res = await axios.get("https://localhost:7209/api/Coupon/valid");
-      setCoupons(res.data);
+      const res = await axios.get("https://localhost:7209/api/Coupon/valid")
+      setCoupons(res.data)
     } catch {
-      setCoupons([]);
+      setCoupons([])
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
     if (user && !admin) {
-      fetchCartCount(user.id);
+      fetchCartCount(user.id)
     } else {
-      setCartCount(0);
+      setCartCount(0)
     }
-  }, [user, admin]);
+  }, [user, admin])
   useEffect(() => {
-    fetchValidCoupons();
-  }, [fetchValidCoupons]);
+    fetchValidCoupons()
+  }, [fetchValidCoupons])
 
   // Logout
   const logout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("is_admin");
-    setCartCount(0);
-    navigate("/");
-    window.location.reload(); // reload để cập nhật header
-  };
+    localStorage.removeItem("user")
+    localStorage.removeItem("token")
+    localStorage.removeItem("authToken")
+    localStorage.removeItem("is_admin")
+    setCartCount(0)
+    navigate("/")
+    window.location.reload() // reload để cập nhật header
+  }
 
   const handleCartClick = () => {
     if (user) {
-      navigate("/cart");
+      navigate("/cart")
     } else {
-      navigate("/login");
+      navigate("/login")
     }
-  };
+  }
 
   const userMenuItems: MenuProps["items"] = [
     { key: "/account", label: "Tài khoản" },
     { key: "/orders", label: "Đơn hàng" },
     { type: "divider" },
     { key: "logout", label: "Đăng xuất" },
-  ];
+  ]
 
-  const adminMenuItems: MenuProps["items"] = [
-    { key: "logout", label: "Đăng xuất" },
-  ];
+  const adminMenuItems: MenuProps["items"] = [{ key: "logout", label: "Đăng xuất" }]
 
   const handleUserMenuClick: MenuProps["onClick"] = ({ key }) => {
     if (key === "logout") {
-      logout();
+      logout()
     } else {
-      navigate(key);
+      navigate(key)
     }
-  };
+  }
+
   // Menu coupon
   const couponMenu: MenuProps["items"] = coupons.map((c) => ({
-  key: c.id,
-  label: (
-    <div
-      style={{
-        maxWidth: 280,
-        padding: "10px",
-        borderBottom: "1px solid #f0f0f0",
-      }}
-    >
-      {/* Header: Mã coupon + phần trăm giảm */}
+    key: c.id,
+    label: (
       <div
         style={{
+          maxWidth: 280,
+          padding: "10px",
+          borderBottom: "1px solid #f0f0f0",
+        }}
+      >
+        {/* Header: Mã coupon + phần trăm giảm */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "4px",
+            alignItems: "center",
+          }}
+        >
+          <span
+            style={{
+              fontWeight: "bold",
+              color: "green", // xanh lá cây
+              fontSize: "14px",
+            }}
+          >
+            🎟️ {c.ma_coupon}
+          </span>
+          <span
+            style={{
+              backgroundColor: "#f9f0ff",
+              color: "#722ed1", // tím
+              fontWeight: "bold",
+              fontSize: "13px",
+              padding: "2px 6px",
+              borderRadius: "6px",
+            }}
+          >
+            -{c.phan_tram}%
+          </span>
+        </div>
+
+        {/* Nội dung */}
+        <div
+          style={{
+            fontSize: "13px",
+            color: "#555",
+            marginBottom: "6px",
+          }}
+        >
+          {c.noi_dung}
+        </div>
+
+        {/* Ngày hiệu lực */}
+        <small
+          style={{
+            display: "block",
+            fontSize: "12px",
+            color: "#999",
+          }}
+        >
+          Hiệu lực:{" từ "}
+          {dayjs(c.ngay_bat_dau).format("DD/MM/YYYY")} đến {dayjs(c.ngay_ket_thuc).format("DD/MM/YYYY")}
+        </small>
+      </div>
+    ),
+  }))
+
+  return (
+    <header
+      style={{
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        color: "white",
+        padding: "15px 0",
+        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+        position: "sticky",
+        top: 0,
+        zIndex: 1000,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "0 20px",
           display: "flex",
           justifyContent: "space-between",
-          marginBottom: "4px",
           alignItems: "center",
         }}
       >
-        <span
+        <div
           style={{
+            fontSize: "1.8rem",
             fontWeight: "bold",
-            color: "green", // xanh lá cây
-            fontSize: "14px",
+            cursor: "pointer",
+            color: "#fff",
+            textShadow: "2px 2px 4px rgba(0,0,0,0.3)",
+            transition: "all 0.3s ease",
+          }}
+          onClick={() => navigate("/")}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.05)"
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)"
           }}
         >
-          🎟️ {c.ma_coupon}
-        </span>
-        <span
-          style={{
-            backgroundColor: "#f9f0ff",
-            color: "#722ed1", // tím
-            fontWeight: "bold",
-            fontSize: "13px",
-            padding: "2px 6px",
-            borderRadius: "6px",
-          }}
-        >
-          -{c.phan_tram}%
-        </span>
-      </div>
-
-      {/* Nội dung */}
-      <div
-        style={{
-          fontSize: "13px",
-          color: "#555",
-          marginBottom: "6px",
-        }}
-      >
-        {c.noi_dung}
-      </div>
-
-      {/* Ngày hiệu lực */}
-      <small
-        style={{
-          display: "block",
-          fontSize: "12px",
-          color: "#999",
-        }}
-      >
-        Hiệu lực:{" từ "}
-        {dayjs(c.ngay_bat_dau).format("DD/MM/YYYY")} đến {dayjs(c.ngay_ket_thuc).format("DD/MM/YYYY")}
-
-      </small>
-    </div>
-  ),
-}));
-
-
-  return (
-    <header className="header">
-      <div className="header-content">
-        <div className="logo" onClick={() => navigate("/")}>
           Fashion Store
         </div>
 
-        {/* Nếu là admin thì hiện Dashboard, Sản phẩm, Đơn hàng */}
         {admin ? (
-          <nav className="nav-menu">
+          <nav
+            style={{
+              display: "flex",
+              gap: "30px",
+              alignItems: "center",
+            }}
+          >
             <div
-              className={`nav-item ${currentPath === "/admin" ? "active" : ""}`}
+              style={{
+                padding: "8px 16px",
+                borderRadius: "20px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                backgroundColor: currentPath === "/admin" ? "rgba(255,255,255,0.2)" : "transparent",
+                backdropFilter: currentPath === "/admin" ? "blur(10px)" : "none",
+                border: currentPath === "/admin" ? "1px solid rgba(255,255,255,0.3)" : "1px solid transparent",
+              }}
               onClick={() => navigate("/admin")}
+              onMouseEnter={(e) => {
+                if (currentPath !== "/admin") {
+                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)"
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (currentPath !== "/admin") {
+                  e.currentTarget.style.backgroundColor = "transparent"
+                }
+              }}
             >
               Dashboard
             </div>
             <div
-              className={`nav-item ${
-                currentPath === "/admin/products-management" ? "active" : ""
-              }`}
+              style={{
+                padding: "8px 16px",
+                borderRadius: "20px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                backgroundColor: currentPath === "/admin/products-management" ? "rgba(255,255,255,0.2)" : "transparent",
+                backdropFilter: currentPath === "/admin/products-management" ? "blur(10px)" : "none",
+                border:
+                  currentPath === "/admin/products-management"
+                    ? "1px solid rgba(255,255,255,0.3)"
+                    : "1px solid transparent",
+              }}
               onClick={() => navigate("/admin/products-management")}
+              onMouseEnter={(e) => {
+                if (currentPath !== "/admin/products-management") {
+                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)"
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (currentPath !== "/admin/products-management") {
+                  e.currentTarget.style.backgroundColor = "transparent"
+                }
+              }}
             >
               Sản phẩm
             </div>
             <div
-              className={`nav-item ${
-                currentPath === "/admin/orders-management" ? "active" : ""
-              }`}
+              style={{
+                padding: "8px 16px",
+                borderRadius: "20px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                backgroundColor: currentPath === "/admin/orders-management" ? "rgba(255,255,255,0.2)" : "transparent",
+                backdropFilter: currentPath === "/admin/orders-management" ? "blur(10px)" : "none",
+                border:
+                  currentPath === "/admin/orders-management"
+                    ? "1px solid rgba(255,255,255,0.3)"
+                    : "1px solid transparent",
+              }}
               onClick={() => navigate("/admin/orders-management")}
+              onMouseEnter={(e) => {
+                if (currentPath !== "/admin/orders-management") {
+                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)"
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (currentPath !== "/admin/orders-management") {
+                  e.currentTarget.style.backgroundColor = "transparent"
+                }
+              }}
             >
               Đơn hàng
             </div>
             <div
-              className={`nav-item ${
-                currentPath === "/admin/users-management" ? "active" : ""
-              }`}
+              style={{
+                padding: "8px 16px",
+                borderRadius: "20px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                backgroundColor: currentPath === "/admin/users-management" ? "rgba(255,255,255,0.2)" : "transparent",
+                backdropFilter: currentPath === "/admin/users-management" ? "blur(10px)" : "none",
+                border:
+                  currentPath === "/admin/users-management"
+                    ? "1px solid rgba(255,255,255,0.3)"
+                    : "1px solid transparent",
+              }}
               onClick={() => navigate("/admin/users-management")}
+              onMouseEnter={(e) => {
+                if (currentPath !== "/admin/users-management") {
+                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)"
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (currentPath !== "/admin/users-management") {
+                  e.currentTarget.style.backgroundColor = "transparent"
+                }
+              }}
             >
-              Người dùng            
+              Người dùng
             </div>
             <div
-              className={`nav-item ${
-                currentPath === "/admin/coupons-management" ? "active" : ""
-              }`}
+              style={{
+                padding: "8px 16px",
+                borderRadius: "20px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                backgroundColor: currentPath === "/admin/coupons-management" ? "rgba(255,255,255,0.2)" : "transparent",
+                backdropFilter: currentPath === "/admin/coupons-management" ? "blur(10px)" : "none",
+                border:
+                  currentPath === "/admin/coupons-management"
+                    ? "1px solid rgba(255,255,255,0.3)"
+                    : "1px solid transparent",
+              }}
               onClick={() => navigate("/admin/coupons-management")}
+              onMouseEnter={(e) => {
+                if (currentPath !== "/admin/coupons-management") {
+                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)"
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (currentPath !== "/admin/coupons-management") {
+                  e.currentTarget.style.backgroundColor = "transparent"
+                }
+              }}
             >
-              Mã giảm giá            
+              Mã giảm giá
             </div>
           </nav>
         ) : (
-          // Nếu không phải admin thì giữ menu cũ
-          <nav className="nav-menu">
+          <nav
+            style={{
+              display: "flex",
+              gap: "30px",
+              alignItems: "center",
+            }}
+          >
             <div
-              className={`nav-item ${currentPath === "/" ? "active" : ""}`}
+              style={{
+                padding: "8px 16px",
+                borderRadius: "20px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                backgroundColor: currentPath === "/" ? "rgba(255,255,255,0.2)" : "transparent",
+                backdropFilter: currentPath === "/" ? "blur(10px)" : "none",
+                border: currentPath === "/" ? "1px solid rgba(255,255,255,0.3)" : "1px solid transparent",
+              }}
               onClick={() => navigate("/")}
+              onMouseEnter={(e) => {
+                if (currentPath !== "/") {
+                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)"
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (currentPath !== "/") {
+                  e.currentTarget.style.backgroundColor = "transparent"
+                }
+              }}
             >
               Trang chủ
             </div>
             <div
-              className={`nav-item ${
-                currentPath === "/products" ? "active" : ""
-              }`}
+              style={{
+                padding: "8px 16px",
+                borderRadius: "20px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                backgroundColor: currentPath === "/products" ? "rgba(255,255,255,0.2)" : "transparent",
+                backdropFilter: currentPath === "/products" ? "blur(10px)" : "none",
+                border: currentPath === "/products" ? "1px solid rgba(255,255,255,0.3)" : "1px solid transparent",
+              }}
               onClick={() => navigate("/products")}
+              onMouseEnter={(e) => {
+                if (currentPath !== "/products") {
+                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)"
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (currentPath !== "/products") {
+                  e.currentTarget.style.backgroundColor = "transparent"
+                }
+              }}
             >
               Sản phẩm
             </div>
           </nav>
         )}
 
-        <div className="user-actions">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "15px",
+          }}
+        >
           {!admin && (
             <>
               {/* Cart */}
               <div
-                className="cart-icon"
+                style={{
+                  position: "relative",
+                  cursor: "pointer",
+                  fontSize: "1.5rem",
+                  padding: "8px",
+                  borderRadius: "50%",
+                  transition: "all 0.3s ease",
+                }}
                 onClick={handleCartClick}
-                style={{ cursor: "pointer" }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)"
+                  e.currentTarget.style.transform = "scale(1.1)"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent"
+                  e.currentTarget.style.transform = "scale(1)"
+                }}
               >
                 🛒
                 {cartCount > 0 && (
-                  <span className="cart-badge">{cartCount}</span>
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "-5px",
+                      right: "-5px",
+                      background: "#ffd700",
+                      color: "#333",
+                      borderRadius: "50%",
+                      width: "20px",
+                      height: "20px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {cartCount}
+                  </span>
                 )}
               </div>
 
               {/* Notifications */}
-              <Dropdown
-                menu={{ items: couponMenu }}
-                placement="bottomRight"
-                trigger={["click"]}
-              >
+              <Dropdown menu={{ items: couponMenu }} placement="bottomRight" trigger={["click"]}>
                 <Badge count={coupons.length} offset={[0, 6]}>
-                  <div style={{ cursor: "pointer", fontSize: "18px", marginRight: "10px" }}>🔔</div>
+                  <div
+                    style={{
+                      cursor: "pointer",
+                      fontSize: "1.5rem",
+                      padding: "8px",
+                      borderRadius: "50%",
+                      transition: "all 0.3s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)"
+                      e.currentTarget.style.transform = "scale(1.1)"
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent"
+                      e.currentTarget.style.transform = "scale(1)"
+                    }}
+                  >
+                    🔔
+                  </div>
                 </Badge>
               </Dropdown>
             </>
-            
           )}
 
-          {(user || admin) ? (
+          {user || admin ? (
             <Dropdown
               menu={{
                 items: admin ? adminMenuItems : userMenuItems,
@@ -265,6 +490,18 @@ const Header: React.FC = () => {
                   display: "flex",
                   alignItems: "center",
                   gap: "8px",
+                  padding: "8px 12px",
+                  borderRadius: "20px",
+                  backgroundColor: "rgba(255,255,255,0.1)",
+                  backdropFilter: "blur(10px)",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)"
                 }}
               >
                 <Avatar size="small">👤</Avatar>
@@ -272,23 +509,72 @@ const Header: React.FC = () => {
               </div>
             </Dropdown>
           ) : (
-            <div style={{ display: "flex", gap: "8px" }}>
-              <Button size="small" onClick={() => navigate("/login")}>
+            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+              <div
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: "25px",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  backgroundColor: "rgba(255,255,255,0.15)",
+                  backdropFilter: "blur(10px)",
+                  border: "1px solid rgba(255,255,255,0.3)",
+                  color: "white",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  minWidth: "90px",
+                  textAlign: "center",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                }}
+                onClick={() => navigate("/login")}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.25)"
+                  e.currentTarget.style.transform = "translateY(-1px)"
+                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.15)"
+                  e.currentTarget.style.transform = "translateY(0)"
+                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)"
+                }}
+              >
                 Đăng nhập
-              </Button>
-              <Button
-                type="primary"
-                size="small"
+              </div>
+              <div
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: "25px",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  background: "linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)",
+                  border: "1px solid #ffd700",
+                  color: "#333",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  minWidth: "90px",
+                  textAlign: "center",
+                  boxShadow: "0 2px 8px rgba(255,215,0,0.3)",
+                }}
                 onClick={() => navigate("/register")}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "linear-gradient(135deg, #ffed4e 0%, #ffd700 100%)"
+                  e.currentTarget.style.transform = "translateY(-1px)"
+                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(255,215,0,0.4)"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)"
+                  e.currentTarget.style.transform = "translateY(0)"
+                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(255,215,0,0.3)"
+                }}
               >
                 Đăng ký
-              </Button>
+              </div>
             </div>
           )}
         </div>
       </div>
     </header>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

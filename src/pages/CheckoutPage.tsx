@@ -1,6 +1,5 @@
-import { Button, Card, Form, Input, message, Modal, Select } from "antd";
+import { Button, Card, Form, Input, message, Modal, QRCode, Select } from "antd";
 import axios from "axios";
-import type React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -29,11 +28,19 @@ const CheckoutPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
-  const navigate = useNavigate();
+  const [shippingMethod, setShippingMethod] = useState<string>("standard");
+  const [shippingFee, setShippingFee] = useState<number>(0);
 
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "momo">("cod");
+  const [momoQrUrl, setMomoQrUrl] = useState<string | null>(null);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+  const [momoModalVisible, setMomoModalVisible] = useState(false);
+
+  const navigate = useNavigate();
   const userString = localStorage.getItem("user");
   const user = userString ? JSON.parse(userString) : null;
 
+  // Fetch cart
   const fetchCart = async () => {
     if (!user) return;
     try {
@@ -47,6 +54,7 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
+  // Fetch coupons
   const fetchCoupons = async () => {
     try {
       const res = await axios.get("https://localhost:7209/api/Coupon/valid");
@@ -60,6 +68,15 @@ const CheckoutPage: React.FC = () => {
     fetchCart();
     fetchCoupons();
   }, []);
+
+  // Tính phí ship
+  useEffect(() => {
+    if (!user?.address) return;
+    if (shippingMethod === "standard") {
+      if (user.address.toLowerCase().includes("hà nội")) setShippingFee(0);
+      else setShippingFee(30000);
+    } else if (shippingMethod === "express") setShippingFee(50000);
+  }, [user, shippingMethod]);
 
   if (!user || cart.length === 0) {
     return (
@@ -78,45 +95,71 @@ const CheckoutPage: React.FC = () => {
     );
   }
 
-  const total = cart.reduce(
-    (sum, item) => sum + item.product_price * item.quantity,
-    0
-  );
+  const total = cart.reduce((sum, item) => sum + item.product_price * item.quantity, 0);
+  const discountedTotal = selectedCoupon ? total - (total * selectedCoupon.phan_tram) / 100 : total;
+  const finalTotal = discountedTotal + shippingFee;
 
-  const discountedTotal = selectedCoupon
-    ? total - (total * selectedCoupon.phan_tram) / 100
-    : total;
+  const onFinish = async (values: any) => {
+  try {
+    // 1️⃣ Tạo đơn hàng với status = "pending"
+    const orderRes = await axios.post("https://localhost:7209/api/Order", {
+      user_id: user.id,
+      phone: values.phone,
+      address: values.address,
+      coupon_id: selectedCoupon ? selectedCoupon.id : null,
+      shipping_fee: shippingFee,
+      items: cart.map((item) => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        size: item.size,
+        color: item.color,
+      })),
+      status: "pending", // quan trọng
+    });
 
-  const onFinish = async (values: { address: string; phone: string; note?: string; coupon?: string }) => {
-    try {
-      await axios.post("https://localhost:7209/api/Order", {
-        user_id: user.id,
-        address: values.address,
-        phone: values.phone,
-        note: values.note,
-        coupon_id: selectedCoupon ? selectedCoupon.id : null,
-        items: cart.map((item) => ({
-          product_id: item.product_id,
-          quantity: item.quantity,
-          size: item.size,
-          color: item.color,
-        })),
-      });
+    const orderId = orderRes.data.orderId;
+    const amount = orderRes.data.total; // lấy từ backend nếu có
 
-      await Promise.all(
-        cart.map((item) => axios.delete(`https://localhost:7209/api/Cart/${item.id}`))
-      );
-
+    if (paymentMethod === "cod") {
+      // COD: xóa giỏ hàng luôn
+      await Promise.all(cart.map((item) => axios.delete(`https://localhost:7209/api/Cart/${item.id}`)));
       Modal.success({
         title: "Đặt hàng thành công!",
         content: "Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ liên hệ với bạn sớm nhất.",
         onOk: () => navigate("/orders"),
       });
-    } catch (err) {
-      console.error("Error creating order:", err);
-      message.error("Không thể đặt hàng. Vui lòng thử lại.");
-    }
-  };
+    } else if (paymentMethod === "momo") {
+      // MoMo: gọi API tạo QR
+      const momoRes = await axios.post("https://localhost:7209/api/Momo/create", { orderId, amount });
+
+      if (momoRes.data.resultCode !== 0) {
+        message.error(`MoMo error: ${momoRes.data.message}`);
+        return;
+      }
+
+      const qrUrl = momoRes.data.qrCodeUrl || momoRes.data.payUrl;
+      const paymentURL = momoRes.data.payUrl || null;
+      
+      setPaymentUrl(paymentURL);
+      if(paymentURL) {
+        window.location.href = paymentURL; // Changed from window.open to window.location.href
+      }
+      
+      if (!qrUrl) {
+        message.error("Không thể tạo QR MoMo. Vui lòng thử lại.");
+        return;
+      }
+
+      setMomoQrUrl(qrUrl);
+      // setMomoModalVisible(true);
+      // ⚠️ Chưa xóa giỏ hàng, chờ MoMo callback
+        }
+      } catch (err) {
+        console.error("Error creating order:", err);
+        message.error("Không thể đặt hàng. Vui lòng thử lại.");
+      }
+    };
+
 
   return (
     <div className="main-content">
@@ -134,6 +177,8 @@ const CheckoutPage: React.FC = () => {
               email: user.email,
               phone: user.phone || "",
               address: user.address || "",
+              shipping: "standard",
+              paymentMethod: "cod",
             }}
           >
             <Form.Item name="name" label="Họ và tên">
@@ -156,7 +201,7 @@ const CheckoutPage: React.FC = () => {
               <Input.TextArea rows={3} disabled />
             </Form.Item>
 
-            {/* Ô nhập / chọn coupon */}
+            {/* Coupon */}
             <Form.Item name="coupon" label="Mã giảm giá">
               <Select
                 allowClear
@@ -164,12 +209,11 @@ const CheckoutPage: React.FC = () => {
                 placeholder="Nhập hoặc chọn mã giảm giá"
                 optionFilterProp="children"
                 filterOption={(input, option) =>
-                  (option?.children as string).toLowerCase().includes(input.toLowerCase())
+                  (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
                 }
                 onChange={(value) => {
-                  if (!value) {
-                    setSelectedCoupon(null);
-                  } else {
+                  if (!value) setSelectedCoupon(null);
+                  else {
                     const found = coupons.find((c) => c.id === value);
                     setSelectedCoupon(found || null);
                   }
@@ -181,6 +225,22 @@ const CheckoutPage: React.FC = () => {
                     <span style={{ color: "purple" }}>{c.phan_tram}%</span> | {c.noi_dung}
                   </Select.Option>
                 ))}
+              </Select>
+            </Form.Item>
+
+            {/* Shipping */}
+            <Form.Item name="shipping" label="Phương thức vận chuyển">
+              <Select value={shippingMethod} onChange={(value) => setShippingMethod(value)}>
+                <Select.Option value="standard">Thường (Miễn phí tại Hà Nội / 30,000đ tỉnh khác)</Select.Option>
+                <Select.Option value="express">Hỏa tốc toàn quốc (50,000đ)</Select.Option>
+              </Select>
+            </Form.Item>
+
+            {/* Payment Method */}
+            <Form.Item name="paymentMethod" label="Phương thức thanh toán">
+              <Select value={paymentMethod} onChange={(value) => setPaymentMethod(value)}>
+                <Select.Option value="cod">Thanh toán khi nhận hàng</Select.Option>
+                <Select.Option value="momo">Thanh toán MoMo</Select.Option>
               </Select>
             </Form.Item>
 
@@ -228,7 +288,7 @@ const CheckoutPage: React.FC = () => {
 
           <div className="summary-row">
             <span>Phí vận chuyển:</span>
-            <span>Miễn phí</span>
+            <span>{shippingFee === 0 ? "Miễn phí" : `${shippingFee.toLocaleString("vi-VN")}đ`}</span>
           </div>
 
           {selectedCoupon && (
@@ -243,11 +303,26 @@ const CheckoutPage: React.FC = () => {
           <div className="summary-total">
             <span>Tổng cộng:</span>
             <span style={{ color: "#ff4d4f" }}>
-              {discountedTotal.toLocaleString("vi-VN")}đ
+              {finalTotal.toLocaleString("vi-VN")}đ
             </span>
           </div>
         </div>
       </div>
+
+      {/* Modal QR MoMo */}
+      <Modal
+  open={momoModalVisible}
+  footer={null}
+  onCancel={() => setMomoModalVisible(false)}
+  title="Quét QR MoMo để thanh toán"
+>
+  {momoQrUrl && (
+    <div style={{ textAlign: "center" }}>
+      <QRCode value={momoQrUrl} size={200} />
+      <p>Quét QR bằng MoMo App để thanh toán</p>
+    </div>
+  )}
+</Modal>
     </div>
   );
 };

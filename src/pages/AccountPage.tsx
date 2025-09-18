@@ -1,8 +1,8 @@
 ;
 
+import { Button, Card, Form, Input, message } from "antd";
 import type React from "react";
 import { useState } from "react";
-import { Form, Input, Button, Card, message } from "antd";
 import { useNavigate } from "react-router-dom";
 
 const AccountPage: React.FC = () => {

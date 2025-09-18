@@ -3,23 +3,23 @@
 import type React from "react";
 import { v4 as uuidv4 } from "uuid";
 
-import { useState, useEffect } from "react";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import {
-  Table,
-  Button,
-  Modal,
-  Form,
-  Input,
-  InputNumber,
-  Select,
-  Space,
-  Popconfirm,
-  message,
-  Tag,
+    Button,
+    Form,
+    Input,
+    InputNumber,
+    message,
+    Modal,
+    Popconfirm,
+    Select,
+    Space,
+    Table,
+    Tag,
 } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import type { Product } from "../../types";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import type { Product } from "../../types";
 
 const { Option } = Select;
 const { TextArea } = Input;

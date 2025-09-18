@@ -1,32 +1,32 @@
 ;
 
-import { useEffect, useState } from "react";
-import axios from "axios";
 import {
-  Card,
-  Row,
-  Col,
-  Spin,
-  Typography,
-  Table,
-  Statistic,
-  Tooltip,
-} from "antd";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip as ReTooltip,
-  ResponsiveContainer,
-} from "recharts";
-import {
-  DollarOutlined,
-  ShoppingCartOutlined,
-  AppstoreOutlined,
-  UserOutlined,
+    AppstoreOutlined,
+    DollarOutlined,
+    ShoppingCartOutlined,
+    UserOutlined,
 } from "@ant-design/icons";
+import {
+    Card,
+    Col,
+    Row,
+    Spin,
+    Statistic,
+    Table,
+    Tooltip,
+    Typography,
+} from "antd";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+    Bar,
+    BarChart,
+    Tooltip as ReTooltip,
+    ResponsiveContainer,
+    XAxis,
+    YAxis,
+} from "recharts";
 
 const { Text } = Typography;
 
