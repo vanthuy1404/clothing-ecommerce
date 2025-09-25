@@ -240,7 +240,7 @@ const HomePage: React.FC = () => {
             <Col xs={24} sm={12} md={8} lg={8} xl={8} key={product.id}>
               <Card
                 hoverable
-                onClick={() => navigate(`/products/${product.id}`)}
+                onClick={() => navigate(`/products`)}
                 cover={
                   <div style={{ position: "relative" }}>
                     <img
@@ -287,7 +287,7 @@ const HomePage: React.FC = () => {
             <Col xs={24} sm={12} md={8} key={product.id}>
               <Card
                 hoverable
-                onClick={() => navigate(`/products/${product.id}`)}
+                onClick={() => navigate(`/products`)}
                 cover={
                   <div style={{ position: "relative" }}>
                     <img
