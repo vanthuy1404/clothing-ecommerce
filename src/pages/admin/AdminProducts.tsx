@@ -1,30 +1,37 @@
-;
-
-import type React from "react";
-import { v4 as uuidv4 } from "uuid";
-
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import {
-    Button,
-    Form,
-    Input,
-    InputNumber,
-    message,
-    Modal,
-    Popconfirm,
-    Select,
-    Space,
-    Table,
-    Tag,
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Form,
+  Input,
+  InputNumber,
+  message,
+  Modal,
+  Popconfirm,
+  Select,
+  Space,
+  Table,
+  Tag,
 } from "antd";
+import type React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 import type { Product } from "../../types";
 
 const { Option } = Select;
 const { TextArea } = Input;
 
 const API_URL = "https://localhost:7209/api/Product";
+
+// custom màu primary
+const primaryBtnStyle = {
+  backgroundColor: "#2C5F5F",
+  borderColor: "#2C5F5F",
+};
 
 const AdminProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -34,12 +41,12 @@ const AdminProducts: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
-useEffect(() => {
+  useEffect(() => {
     const isAdmin = localStorage.getItem("is_admin");
     if (!isAdmin) {
       navigate("/admin/login");
     }
-}, []);
+  }, [navigate]);
 
   useEffect(() => {
     loadProducts();
@@ -52,7 +59,6 @@ useEffect(() => {
       if (!res.ok) throw new Error("Fetch failed");
       const data = await res.json();
 
-      // Parse sizes, colors từ string JSON thành array
       const parsed = data.map((p: any) => ({
         ...p,
         sizes: JSON.parse(p.sizes),
@@ -98,14 +104,10 @@ useEffect(() => {
   const handleSubmit = async (values: any) => {
     try {
       const productData = {
-        id: editingProduct ? editingProduct.id : uuidv4(), // tự sinh GUID khi thêm mới
+        id: editingProduct ? editingProduct.id : uuidv4(),
         ...values,
-        sizes: JSON.stringify(
-          values.sizes.split(",").map((s: string) => s.trim())
-        ),
-        colors: JSON.stringify(
-          values.colors.split(",").map((c: string) => c.trim())
-        ),
+        sizes: JSON.stringify(values.sizes.split(",").map((s: string) => s.trim())),
+        colors: JSON.stringify(values.colors.split(",").map((c: string) => c.trim())),
         price: Number(values.price),
         stock: Number(values.stock),
       };
@@ -118,7 +120,6 @@ useEffect(() => {
         });
         if (!res.ok) throw new Error("Update failed");
         const updatedProduct = await res.json();
-
         updatedProduct.sizes = JSON.parse(updatedProduct.sizes);
         updatedProduct.colors = JSON.parse(updatedProduct.colors);
 
@@ -134,7 +135,6 @@ useEffect(() => {
         });
         if (!res.ok) throw new Error("Create failed");
         const newProduct = await res.json();
-
         newProduct.sizes = JSON.parse(newProduct.sizes);
         newProduct.colors = JSON.parse(newProduct.colors);
 
@@ -160,20 +160,18 @@ useEffect(() => {
         <img
           src={image.startsWith("http") ? image : `/${image}`}
           alt="Product"
-          style={{ width: 50, height: 50, objectFit: "cover" }}
+          style={{
+            width: 50,
+            height: 50,
+            objectFit: "cover",
+            borderRadius: 6,
+            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+          }}
         />
       ),
     },
-    {
-      title: "Tên sản phẩm",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "Danh mục",
-      dataIndex: "category",
-      key: "category",
-    },
+    { title: "Tên sản phẩm", dataIndex: "name", key: "name" },
+    { title: "Danh mục", dataIndex: "category", key: "category" },
     {
       title: "Giá",
       dataIndex: "price",
@@ -193,10 +191,11 @@ useEffect(() => {
     {
       title: "Thao tác",
       key: "actions",
-      width: 150,
+      width: 160,
       render: (_: any, record: Product) => (
         <Space>
           <Button
+            style={primaryBtnStyle}
             type="primary"
             size="small"
             icon={<EditOutlined />}
@@ -220,7 +219,7 @@ useEffect(() => {
   ];
 
   return (
-    <div>
+    <div style={{ padding: 24 }}>
       <div
         style={{
           marginBottom: 16,
@@ -229,8 +228,15 @@ useEffect(() => {
           alignItems: "center",
         }}
       >
-        <h2>Quản lý sản phẩm</h2>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+        <h2 style={{ margin: 0, fontWeight: 600, color: "#2C5F5F" }}>
+          Quản lý sản phẩm
+        </h2>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={handleAdd}
+          style={primaryBtnStyle}
+        >
           Thêm sản phẩm
         </Button>
       </div>
@@ -241,6 +247,11 @@ useEffect(() => {
         rowKey="id"
         loading={loading}
         pagination={{ pageSize: 10 }}
+        style={{
+          background: "#fff",
+          borderRadius: 8,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+        }}
       />
 
       <Modal
@@ -249,6 +260,7 @@ useEffect(() => {
         onCancel={() => setModalVisible(false)}
         onOk={() => form.submit()}
         width={600}
+        okButtonProps={{ style: primaryBtnStyle }}
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Form.Item
@@ -264,7 +276,7 @@ useEffect(() => {
             label="Danh mục"
             rules={[{ required: true, message: "Vui lòng chọn danh mục" }]}
           >
-            <Select>
+            <Select placeholder="Chọn danh mục">
               <Option value="Áo">Áo</Option>
               <Option value="Quần">Quần</Option>
               <Option value="Váy">Váy</Option>
@@ -285,9 +297,7 @@ useEffect(() => {
             <Form.Item
               name="stock"
               label="Tồn kho"
-              rules={[
-                { required: true, message: "Vui lòng nhập số lượng tồn kho" },
-              ]}
+              rules={[{ required: true, message: "Vui lòng nhập số lượng tồn kho" }]}
               style={{ flex: 1 }}
             >
               <InputNumber min={0} style={{ width: "100%" }} />
@@ -312,7 +322,7 @@ useEffect(() => {
 
           <Form.Item
             name="image"
-            label="URL hình ảnh (online)"
+            label="URL hình ảnh"
             rules={[{ required: true, message: "Vui lòng nhập URL hình ảnh" }]}
           >
             <Input placeholder="https://media.image.com/example.png" />
@@ -332,4 +342,3 @@ useEffect(() => {
 };
 
 export default AdminProducts;
-

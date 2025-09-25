@@ -1,5 +1,5 @@
+import { Button, Card, Form, Input, message } from "antd";
 import type React from "react";
-import { Form, Input, Button, Card, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../../AppContext";
 
@@ -50,7 +50,8 @@ const AdminLoginPage: React.FC = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" block size="large">
+            <Button type="primary" htmlType="submit"                  style={{backgroundColor: "#2C5F5F"}}
+block size="large">
               Đăng nhập
             </Button>
           </Form.Item>

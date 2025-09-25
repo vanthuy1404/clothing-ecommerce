@@ -56,7 +56,8 @@ const LoginPage: React.FC = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" block size="large">
+            <Button type="primary" htmlType="submit" style={{ backgroundColor: "#2C5F5F" }}
+              block size="large">
               Đăng nhập
             </Button>
           </Form.Item>

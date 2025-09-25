@@ -100,65 +100,65 @@ const CheckoutPage: React.FC = () => {
   const finalTotal = discountedTotal + shippingFee;
 
   const onFinish = async (values: any) => {
-  try {
-    // 1️⃣ Tạo đơn hàng với status = "pending"
-    const orderRes = await axios.post("https://localhost:7209/api/Order", {
-      user_id: user.id,
-      phone: values.phone,
-      address: values.address,
-      coupon_id: selectedCoupon ? selectedCoupon.id : null,
-      shipping_fee: shippingFee,
-      items: cart.map((item) => ({
-        product_id: item.product_id,
-        quantity: item.quantity,
-        size: item.size,
-        color: item.color,
-      })),
-      status: "pending", // quan trọng
-    });
-
-    const orderId = orderRes.data.orderId;
-    const amount = orderRes.data.total; // lấy từ backend nếu có
-
-    if (paymentMethod === "cod") {
-      // COD: xóa giỏ hàng luôn
-      await Promise.all(cart.map((item) => axios.delete(`https://localhost:7209/api/Cart/${item.id}`)));
-      Modal.success({
-        title: "Đặt hàng thành công!",
-        content: "Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ liên hệ với bạn sớm nhất.",
-        onOk: () => navigate("/orders"),
+    try {
+      // 1️⃣ Tạo đơn hàng với status = "pending"
+      const orderRes = await axios.post("https://localhost:7209/api/Order", {
+        user_id: user.id,
+        phone: values.phone,
+        address: values.address,
+        coupon_id: selectedCoupon ? selectedCoupon.id : null,
+        shipping_fee: shippingFee,
+        items: cart.map((item) => ({
+          product_id: item.product_id,
+          quantity: item.quantity,
+          size: item.size,
+          color: item.color,
+        })),
+        status: "pending", // quan trọng
       });
-    } else if (paymentMethod === "momo") {
-      // MoMo: gọi API tạo QR
-      const momoRes = await axios.post("https://localhost:7209/api/Momo/create", { orderId, amount });
 
-      if (momoRes.data.resultCode !== 0) {
-        message.error(`MoMo error: ${momoRes.data.message}`);
-        return;
-      }
+      const orderId = orderRes.data.orderId;
+      const amount = orderRes.data.total; // lấy từ backend nếu có
 
-      const qrUrl = momoRes.data.qrCodeUrl || momoRes.data.payUrl;
-      const paymentURL = momoRes.data.payUrl || null;
-      
-      setPaymentUrl(paymentURL);
-      if(paymentURL) {
-        window.location.href = paymentURL; // Changed from window.open to window.location.href
-      }
-      
-      if (!qrUrl) {
-        message.error("Không thể tạo QR MoMo. Vui lòng thử lại.");
-        return;
-      }
+      if (paymentMethod === "cod") {
+        // COD: xóa giỏ hàng luôn
+        await Promise.all(cart.map((item) => axios.delete(`https://localhost:7209/api/Cart/${item.id}`)));
+        Modal.success({
+          title: "Đặt hàng thành công!",
+          content: "Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ liên hệ với bạn sớm nhất.",
+          onOk: () => navigate("/orders"),
+        });
+      } else if (paymentMethod === "momo") {
+        // MoMo: gọi API tạo QR
+        const momoRes = await axios.post("https://localhost:7209/api/Momo/create", { orderId, amount });
 
-      setMomoQrUrl(qrUrl);
-      // setMomoModalVisible(true);
-      // ⚠️ Chưa xóa giỏ hàng, chờ MoMo callback
+        if (momoRes.data.resultCode !== 0) {
+          message.error(`MoMo error: ${momoRes.data.message}`);
+          return;
         }
-      } catch (err) {
-        console.error("Error creating order:", err);
-        message.error("Không thể đặt hàng. Vui lòng thử lại.");
+
+        const qrUrl = momoRes.data.qrCodeUrl || momoRes.data.payUrl;
+        const paymentURL = momoRes.data.payUrl || null;
+
+        setPaymentUrl(paymentURL);
+        if (paymentURL) {
+          window.location.href = paymentURL; // Changed from window.open to window.location.href
+        }
+
+        if (!qrUrl) {
+          message.error("Không thể tạo QR MoMo. Vui lòng thử lại.");
+          return;
+        }
+
+        setMomoQrUrl(qrUrl);
+        // setMomoModalVisible(true);
+        // ⚠️ Chưa xóa giỏ hàng, chờ MoMo callback
       }
-    };
+    } catch (err) {
+      console.error("Error creating order:", err);
+      message.error("Không thể đặt hàng. Vui lòng thử lại.");
+    }
+  };
 
 
   return (
@@ -249,7 +249,8 @@ const CheckoutPage: React.FC = () => {
             </Form.Item>
 
             <Form.Item>
-              <Button type="primary" htmlType="submit" size="large" block>
+              <Button type="primary" style={{ backgroundColor: "#2C5F5F" }}
+                htmlType="submit" size="large" block>
                 Đặt hàng
               </Button>
             </Form.Item>
@@ -311,18 +312,18 @@ const CheckoutPage: React.FC = () => {
 
       {/* Modal QR MoMo */}
       <Modal
-  open={momoModalVisible}
-  footer={null}
-  onCancel={() => setMomoModalVisible(false)}
-  title="Quét QR MoMo để thanh toán"
->
-  {momoQrUrl && (
-    <div style={{ textAlign: "center" }}>
-      <QRCode value={momoQrUrl} size={200} />
-      <p>Quét QR bằng MoMo App để thanh toán</p>
-    </div>
-  )}
-</Modal>
+        open={momoModalVisible}
+        footer={null}
+        onCancel={() => setMomoModalVisible(false)}
+        title="Quét QR MoMo để thanh toán"
+      >
+        {momoQrUrl && (
+          <div style={{ textAlign: "center" }}>
+            <QRCode value={momoQrUrl} size={200} />
+            <p>Quét QR bằng MoMo App để thanh toán</p>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

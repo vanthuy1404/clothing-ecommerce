@@ -101,7 +101,8 @@ const CartPage: React.FC = () => {
           <div className="empty-icon">🛒</div>
           <div className="empty-title">Giỏ hàng trống</div>
           <div className="empty-description">Hãy thêm một số sản phẩm vào giỏ hàng của bạn</div>
-          <Button type="primary" onClick={() => navigate("/products")}>
+          <Button type="primary" style={{ backgroundColor: "#2C5F5F" }}
+            onClick={() => navigate("/products")}>
             Mua sắm ngay
           </Button>
         </div>
@@ -189,7 +190,7 @@ const CartPage: React.FC = () => {
             type="primary"
             block
             size="large"
-            style={{ marginTop: "16px" }}
+            style={{ marginTop: "16px", backgroundColor: "#2C5F5F" }}
             onClick={() => navigate("/checkout")}
           >
             Tiến hành thanh toán

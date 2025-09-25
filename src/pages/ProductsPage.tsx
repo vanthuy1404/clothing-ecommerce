@@ -172,6 +172,7 @@ const ProductsPage: React.FC = () => {
                 </div>
                 <Button
                   type="primary"
+                  style={{backgroundColor: "#2C5F5F"}}
                   block
                   onClick={() => handleAddToCart(product)}
                   disabled={product.stock === 0}
@@ -200,8 +201,10 @@ const ProductsPage: React.FC = () => {
         onCancel={() => setModalVisible(false)}
         okText="Thêm vào giỏ"
         cancelText="Hủy"
-        okButtonProps={{ disabled: !selectedSize || !selectedColor }}
-      >
+ okButtonProps={{
+    disabled: !selectedSize || !selectedColor,
+    style: { backgroundColor: "#2C5F5F", borderColor: "#2C5F5F" }, // đổi màu
+  }}      >
         {selectedProduct && (
           <div>
             <div style={{ marginBottom: "16px" }}>

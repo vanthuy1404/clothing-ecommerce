@@ -1,13 +1,13 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import {
-    Button,
-    Form,
-    Input,
-    message,
-    Modal,
-    Popconfirm,
-    Space,
-    Table
+  Button,
+  Form,
+  Input,
+  message,
+  Modal,
+  Popconfirm,
+  Space,
+  Table
 } from "antd";
 import type React from "react";
 import { useEffect, useState } from "react";
@@ -142,6 +142,7 @@ const AdminUsers: React.FC = () => {
             type="primary"
             size="small"
             icon={<EditOutlined />}
+            style={{backgroundColor: "#2C5F5F"}}
             onClick={() => handleEdit(record)}
           >
             Sửa
@@ -172,7 +173,8 @@ const AdminUsers: React.FC = () => {
         }}
       >
         <h2>Quản lý người dùng</h2>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} style={{backgroundColor: "#2C5F5F"}}
+>
           Thêm người dùng
         </Button>
       </div>

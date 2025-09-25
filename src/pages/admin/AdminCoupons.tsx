@@ -148,7 +148,8 @@ const AdminCoupons: React.FC = () => {
             type="primary"
             size="small"
             icon={<EyeOutlined />}
-            style={{ marginRight: 8 }}
+            style={{ marginRight: 8, backgroundColor: "#2C5F5F" }}
+            
             onClick={() => handleViewDetail(record)}
           >
             Chi tiết
@@ -188,6 +189,7 @@ const AdminCoupons: React.FC = () => {
         <Button
           type="primary"
           icon={<PlusOutlined />}
+          style={{ backgroundColor: "#2C5F5F" }}
           onClick={() => {
             setEditingCoupon(null)
             form.resetFields()

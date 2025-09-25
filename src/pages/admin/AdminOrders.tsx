@@ -199,6 +199,8 @@ const AdminOrders: React.FC = () => {
         type="primary"
         size="small"
         icon={<EyeOutlined />}
+        style={{backgroundColor: "#2C5F5F"}}
+
         onClick={() => handleViewDetail(record)}
       >
         Chi tiết

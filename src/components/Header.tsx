@@ -157,7 +157,7 @@ const Header: React.FC = () => {
   return (
     <header
       style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        background: "#2C5F5F", // Updated to match DNK teal color scheme instead of purple gradient
         color: "white",
         padding: "15px 0",
         boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
@@ -193,7 +193,7 @@ const Header: React.FC = () => {
             e.currentTarget.style.transform = "scale(1)"
           }}
         >
-          Fashion Store
+          Fashion Store {/* Updated brand name to match DNK design */}
         </div>
 
         {admin ? (
@@ -210,14 +210,14 @@ const Header: React.FC = () => {
                 borderRadius: "20px",
                 cursor: "pointer",
                 transition: "all 0.3s ease",
-                backgroundColor: currentPath === "/admin" ? "rgba(255,255,255,0.2)" : "transparent",
+                backgroundColor: currentPath === "/admin" ? "rgba(78, 205, 196, 0.2)" : "transparent", // Updated active state color to teal
                 backdropFilter: currentPath === "/admin" ? "blur(10px)" : "none",
-                border: currentPath === "/admin" ? "1px solid rgba(255,255,255,0.3)" : "1px solid transparent",
+                border: currentPath === "/admin" ? "1px solid rgba(78, 205, 196, 0.3)" : "1px solid transparent",
               }}
               onClick={() => navigate("/admin")}
               onMouseEnter={(e) => {
                 if (currentPath !== "/admin") {
-                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)"
+                  e.currentTarget.style.backgroundColor = "rgba(78, 205, 196, 0.1)" // Updated hover color to teal
                 }
               }}
               onMouseLeave={(e) => {
@@ -234,17 +234,18 @@ const Header: React.FC = () => {
                 borderRadius: "20px",
                 cursor: "pointer",
                 transition: "all 0.3s ease",
-                backgroundColor: currentPath === "/admin/products-management" ? "rgba(255,255,255,0.2)" : "transparent",
+                backgroundColor:
+                  currentPath === "/admin/products-management" ? "rgba(78, 205, 196, 0.2)" : "transparent",
                 backdropFilter: currentPath === "/admin/products-management" ? "blur(10px)" : "none",
                 border:
                   currentPath === "/admin/products-management"
-                    ? "1px solid rgba(255,255,255,0.3)"
+                    ? "1px solid rgba(78, 205, 196, 0.3)"
                     : "1px solid transparent",
               }}
               onClick={() => navigate("/admin/products-management")}
               onMouseEnter={(e) => {
                 if (currentPath !== "/admin/products-management") {
-                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)"
+                  e.currentTarget.style.backgroundColor = "rgba(78, 205, 196, 0.1)"
                 }
               }}
               onMouseLeave={(e) => {
@@ -261,17 +262,17 @@ const Header: React.FC = () => {
                 borderRadius: "20px",
                 cursor: "pointer",
                 transition: "all 0.3s ease",
-                backgroundColor: currentPath === "/admin/orders-management" ? "rgba(255,255,255,0.2)" : "transparent",
+                backgroundColor: currentPath === "/admin/orders-management" ? "rgba(78, 205, 196, 0.2)" : "transparent",
                 backdropFilter: currentPath === "/admin/orders-management" ? "blur(10px)" : "none",
                 border:
                   currentPath === "/admin/orders-management"
-                    ? "1px solid rgba(255,255,255,0.3)"
+                    ? "1px solid rgba(78, 205, 196, 0.3)"
                     : "1px solid transparent",
               }}
               onClick={() => navigate("/admin/orders-management")}
               onMouseEnter={(e) => {
                 if (currentPath !== "/admin/orders-management") {
-                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)"
+                  e.currentTarget.style.backgroundColor = "rgba(78, 205, 196, 0.1)"
                 }
               }}
               onMouseLeave={(e) => {
@@ -288,17 +289,17 @@ const Header: React.FC = () => {
                 borderRadius: "20px",
                 cursor: "pointer",
                 transition: "all 0.3s ease",
-                backgroundColor: currentPath === "/admin/users-management" ? "rgba(255,255,255,0.2)" : "transparent",
+                backgroundColor: currentPath === "/admin/users-management" ? "rgba(78, 205, 196, 0.2)" : "transparent",
                 backdropFilter: currentPath === "/admin/users-management" ? "blur(10px)" : "none",
                 border:
                   currentPath === "/admin/users-management"
-                    ? "1px solid rgba(255,255,255,0.3)"
+                    ? "1px solid rgba(78, 205, 196, 0.3)"
                     : "1px solid transparent",
               }}
               onClick={() => navigate("/admin/users-management")}
               onMouseEnter={(e) => {
                 if (currentPath !== "/admin/users-management") {
-                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)"
+                  e.currentTarget.style.backgroundColor = "rgba(78, 205, 196, 0.1)"
                 }
               }}
               onMouseLeave={(e) => {
@@ -315,17 +316,18 @@ const Header: React.FC = () => {
                 borderRadius: "20px",
                 cursor: "pointer",
                 transition: "all 0.3s ease",
-                backgroundColor: currentPath === "/admin/coupons-management" ? "rgba(255,255,255,0.2)" : "transparent",
+                backgroundColor:
+                  currentPath === "/admin/coupons-management" ? "rgba(78, 205, 196, 0.2)" : "transparent",
                 backdropFilter: currentPath === "/admin/coupons-management" ? "blur(10px)" : "none",
                 border:
                   currentPath === "/admin/coupons-management"
-                    ? "1px solid rgba(255,255,255,0.3)"
+                    ? "1px solid rgba(78, 205, 196, 0.3)"
                     : "1px solid transparent",
               }}
               onClick={() => navigate("/admin/coupons-management")}
               onMouseEnter={(e) => {
                 if (currentPath !== "/admin/coupons-management") {
-                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)"
+                  e.currentTarget.style.backgroundColor = "rgba(78, 205, 196, 0.1)"
                 }
               }}
               onMouseLeave={(e) => {
@@ -351,14 +353,14 @@ const Header: React.FC = () => {
                 borderRadius: "20px",
                 cursor: "pointer",
                 transition: "all 0.3s ease",
-                backgroundColor: currentPath === "/" ? "rgba(255,255,255,0.2)" : "transparent",
+                backgroundColor: currentPath === "/" ? "rgba(78, 205, 196, 0.2)" : "transparent",
                 backdropFilter: currentPath === "/" ? "blur(10px)" : "none",
-                border: currentPath === "/" ? "1px solid rgba(255,255,255,0.3)" : "1px solid transparent",
+                border: currentPath === "/" ? "1px solid rgba(78, 205, 196, 0.3)" : "1px solid transparent",
               }}
               onClick={() => navigate("/")}
               onMouseEnter={(e) => {
                 if (currentPath !== "/") {
-                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)"
+                  e.currentTarget.style.backgroundColor = "rgba(78, 205, 196, 0.1)"
                 }
               }}
               onMouseLeave={(e) => {
@@ -375,14 +377,14 @@ const Header: React.FC = () => {
                 borderRadius: "20px",
                 cursor: "pointer",
                 transition: "all 0.3s ease",
-                backgroundColor: currentPath === "/products" ? "rgba(255,255,255,0.2)" : "transparent",
+                backgroundColor: currentPath === "/products" ? "rgba(78, 205, 196, 0.2)" : "transparent",
                 backdropFilter: currentPath === "/products" ? "blur(10px)" : "none",
-                border: currentPath === "/products" ? "1px solid rgba(255,255,255,0.3)" : "1px solid transparent",
+                border: currentPath === "/products" ? "1px solid rgba(78, 205, 196, 0.3)" : "1px solid transparent",
               }}
               onClick={() => navigate("/products")}
               onMouseEnter={(e) => {
                 if (currentPath !== "/products") {
-                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)"
+                  e.currentTarget.style.backgroundColor = "rgba(78, 205, 196, 0.1)"
                 }
               }}
               onMouseLeave={(e) => {
@@ -417,7 +419,7 @@ const Header: React.FC = () => {
                 }}
                 onClick={handleCartClick}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)"
+                  e.currentTarget.style.backgroundColor = "rgba(78, 205, 196, 0.2)" // Updated cart hover color to teal
                   e.currentTarget.style.transform = "scale(1.1)"
                 }}
                 onMouseLeave={(e) => {
@@ -432,8 +434,8 @@ const Header: React.FC = () => {
                       position: "absolute",
                       top: "-5px",
                       right: "-5px",
-                      background: "#ffd700",
-                      color: "#333",
+                      background: "#4ECDC4", // Updated cart badge color to teal accent
+                      color: "#fff",
                       borderRadius: "50%",
                       width: "20px",
                       height: "20px",
@@ -451,7 +453,9 @@ const Header: React.FC = () => {
 
               {/* Notifications */}
               <Dropdown menu={{ items: couponMenu }} placement="bottomRight" trigger={["click"]}>
-                <Badge count={coupons.length} offset={[0, 6]}>
+                <Badge count={coupons.length} offset={[0, 6]} color="#4ECDC4">
+                  {" "}
+                  {/* Updated badge color to teal */}
                   <div
                     style={{
                       cursor: "pointer",
@@ -461,7 +465,7 @@ const Header: React.FC = () => {
                       transition: "all 0.3s ease",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)"
+                      e.currentTarget.style.backgroundColor = "rgba(78, 205, 196, 0.2)" // Updated notification hover color to teal
                       e.currentTarget.style.transform = "scale(1.1)"
                     }}
                     onMouseLeave={(e) => {
@@ -492,16 +496,16 @@ const Header: React.FC = () => {
                   gap: "8px",
                   padding: "8px 12px",
                   borderRadius: "20px",
-                  backgroundColor: "rgba(255,255,255,0.1)",
+                  backgroundColor: "rgba(78, 205, 196, 0.1)", // Updated user menu background to teal
                   backdropFilter: "blur(10px)",
-                  border: "1px solid rgba(255,255,255,0.2)",
+                  border: "1px solid rgba(78, 205, 196, 0.2)",
                   transition: "all 0.3s ease",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)"
+                  e.currentTarget.style.backgroundColor = "rgba(78, 205, 196, 0.2)"
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)"
+                  e.currentTarget.style.backgroundColor = "rgba(78, 205, 196, 0.1)"
                 }}
               >
                 <Avatar size="small">👤</Avatar>
@@ -516,9 +520,9 @@ const Header: React.FC = () => {
                   borderRadius: "25px",
                   cursor: "pointer",
                   transition: "all 0.3s ease",
-                  backgroundColor: "rgba(255,255,255,0.15)",
+                  backgroundColor: "rgba(78, 205, 196, 0.15)", // Updated login button background to teal
                   backdropFilter: "blur(10px)",
-                  border: "1px solid rgba(255,255,255,0.3)",
+                  border: "1px solid rgba(78, 205, 196, 0.3)",
                   color: "white",
                   fontSize: "14px",
                   fontWeight: "500",
@@ -528,12 +532,12 @@ const Header: React.FC = () => {
                 }}
                 onClick={() => navigate("/login")}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.25)"
+                  e.currentTarget.style.backgroundColor = "rgba(78, 205, 196, 0.25)"
                   e.currentTarget.style.transform = "translateY(-1px)"
                   e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)"
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.15)"
+                  e.currentTarget.style.backgroundColor = "rgba(78, 205, 196, 0.15)"
                   e.currentTarget.style.transform = "translateY(0)"
                   e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)"
                 }}
@@ -546,25 +550,25 @@ const Header: React.FC = () => {
                   borderRadius: "25px",
                   cursor: "pointer",
                   transition: "all 0.3s ease",
-                  background: "linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)",
-                  border: "1px solid #ffd700",
-                  color: "#333",
+                  background: "#4ECDC4", // Updated register button to solid teal color
+                  border: "1px solid #4ECDC4",
+                  color: "#fff",
                   fontSize: "14px",
                   fontWeight: "600",
                   minWidth: "90px",
                   textAlign: "center",
-                  boxShadow: "0 2px 8px rgba(255,215,0,0.3)",
+                  boxShadow: "0 2px 8px rgba(78, 205, 196, 0.3)",
                 }}
                 onClick={() => navigate("/register")}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "linear-gradient(135deg, #ffed4e 0%, #ffd700 100%)"
+                  e.currentTarget.style.background = "#45B7B8"
                   e.currentTarget.style.transform = "translateY(-1px)"
-                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(255,215,0,0.4)"
+                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(78, 205, 196, 0.4)"
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)"
+                  e.currentTarget.style.background = "#4ECDC4"
                   e.currentTarget.style.transform = "translateY(0)"
-                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(255,215,0,0.3)"
+                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(78, 205, 196, 0.3)"
                 }}
               >
                 Đăng ký

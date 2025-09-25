@@ -169,7 +169,8 @@ const RegisterPage: React.FC = () => {
 
           <div style={{ textAlign: "center" }}>
             Đã có tài khoản?{" "}
-            <Button type="link" onClick={() => navigate("/login")}>
+            <Button type="link"                   style={{backgroundColor: "#2C5F5F"}}
+onClick={() => navigate("/login")}>
               Đăng nhập ngay
             </Button>
           </div>
